@@ -9,5 +9,5 @@ def consultar_cliente(cpf):
     print ('Cliente não encontrado')
 
 def criar_conta(cpf,numero_conta,tipo_conta,saldo_inicial):
-  numero_conta = 1
+  numero_conta = 1 
   return cpf,numero_conta,tipo_conta,saldo_inicial
