@@ -4,7 +4,7 @@ def cadastrar_cliente(nome,cpf):
 
 def consultar_cliente(cpf):
   if cpf == cpf_cadastrado:
-    print ('O cliente tem conta')
+    print ('O cliente tem conta') 
   else:
     print ('Cliente não encontrado')
 
