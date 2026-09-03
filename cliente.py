@@ -1,6 +1,5 @@
 def cadastrar_cliente(nome,cpf):
-  return nome
-  return cpf
+  return nome,cpf
 
 def consultar_cliente(cpf):
   if cpf == cpf_cadastrado:
