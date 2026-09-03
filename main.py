@@ -1,3 +1,6 @@
+from cliente import consultar_cliente, cadastrar_cliente
+from conta import depositar, sacar, consultarSaldo, criar_conta
+
 cpf_cadastrado=0
 
 nome=input(('Digite o nome de usuario:'))
