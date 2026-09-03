@@ -1,31 +1,27 @@
-from cliente import consultar_cliente, cadastrar_cliente
-from conta import depositar, sacar, consultarSaldo, criar_conta
+from cliente import cadastrar_cliente, criar_conta
+from conta import depositar, sacar
 
-cpf_cadastrado=0
+nome = input("Digite o nome do cliente: ")
+cpf = input("Digite o CPF do cliente: ")
 
-nome=input(('Digite o nome de usuario:'))
-cpf=int(input('Digite seu cpf:'))
+cliente, cpf_cadastrado = cadastrar_cliente(nome, cpf)
 
-consultar_cliente(cpf,cpf_cadastrado)
+numero_conta = 1
+tipo_conta = "Corrente"
+saldo_inicial = 0
 
-cpf_cadastrado=cpf
+cpf_conta, conta, tipoConta, saldo = criar_conta(cpf_cadastrado,numero_conta,tipo_conta,saldo_inicial)
+deposito = float(input("Digite o valor do depósito: R$ "))
 
-cadastro=cadastrar_cliente(nome, cpf)
+saldo = depositar(saldo, deposito)
+saque = float(input("Digite o valor do saque: R$ "))
+saldo = sacar(saldo, saque)
 
-saldo_conta = 0.0
+print("\n--- CLIENTE ---")
+print("Nome:", cliente)
+print("CPF:", cpf_cadastrado)
 
-deposito=float(input('Deposite seu saldo:'))
-saldo_conta = depositar(saldo_conta, deposito)
-
-saque=float(input('Digite o quanto gostaria de sacar:'))
-saldo_conta= sacar(saldo_conta, saque)
-
-consultarSaldo(saldo_conta)
-
-print('Parabens, sua conta na Militech Bank foi criada com sucesso :3 Aqui vão suas informações:')
-cpf_conta, num_conta, tipo, saldo_final = criar_conta(cpf, 1, 'Corrente', saldo_conta)
-
-print("CPF:", cpf_conta)
-print("Número da sua conta:", num_conta)
-print("Tipo de conta:", tipo)
-print("Saldo: R$", saldo_final)
+print("\n--- CONTA ---")
+print("Número:", conta)
+print("Tipo:", tipoConta)
+print("Saldo:", saldo)
