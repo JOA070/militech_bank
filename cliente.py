@@ -13,7 +13,7 @@ def cadastrar_cliente(nome,cpf):
 def criar_conta(cpf,tipo_conta,saldo):
   numero_conta = random.randint(100000,999999)
   conta = (cpf,numero_conta,tipo_conta,saldo)
-  consta.append(conta)
+  contas.append(conta)
   return conta
 
 def salvar_clientes(clientes):
@@ -28,7 +28,7 @@ def carregar_clientes():
 
       clientes.clear()
       for cliente in dados:
-        clientes.append(cliente)
+        clientes.append(tuple(cliente))
   except FileNotFoundError:
     pass
 
@@ -44,6 +44,6 @@ def carregar_contas():
       contas.clear()
 
       for conta in dados:
-        contas.append(conta)
+        contas.append(tuple(conta))
   except FileNotFoundError:
     pass
