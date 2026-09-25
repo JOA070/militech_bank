@@ -14,32 +14,40 @@ while (opcao != '0'):
     
     if opcao == '1':
         nome = input("Digite o nome do cliente: ")
-        cpf = int(input("Informe o CPF: "))
+        try:
+            cpf = int(input("Informe o CPF: "))
+        except ValueError:
+            print("CPF inválido! Digite apenas números.")
+            continue
+
+        while True:
+            try:
+                opcao_agencia = int(input(
+                    "Qual agencia deseja?\n"
+                    "1- Militech Central\n"
+                    "2- Militech Corpo Plaza\n"
+                ))
+
+                if opcao_agencia == 1 or opcao_agencia == 2:
+                    break
+                print("Opção inválida! Digite 1 ou 2.")
+            except ValueError:
+                print("Digite apenas 1 ou 2.")
 
         cliente = cadastrar_cliente(nome, cpf)
-
-
         tipo_conta = "Corrente"
         saldo_inicial = 0
-        opcao_agencia = int(input("Qual agencia deseja?\n""1- Militech Central\n""2- Militech Corpo Plaza\n"))
-
-        while opcao_agencia != 1 and opcao_agencia != 2:
-            print("Opção inválida! Digite 1 ou 2.")
-
-            opcao_agencia = int(input("Qual agencia deseja?\n""1- Militech Central\n""2- Militech Corpo Plaza\n"))
+        salvar_clientes()
 
         if opcao_agencia == 1:
-            conta = criar_conta(cpf,tipo_conta, saldo_inicial, lista_agencias[0][0])
-            salvar_clientes()
+            conta = criar_conta(cpf,tipo_conta,saldo_inicial,lista_agencias[0][0])
             salvar_contas()
 
         elif opcao_agencia == 2:
-            conta = criar_conta(cpf,tipo_conta,saldo_inicial,lista_agencias[1][0])
-            salvar_clientes()
-            salvar_contas()
-             
 
-            saldo = conta[3]
+            conta = criar_conta(cpf,tipo_conta,saldo_inicial,lista_agencias[1][0])
+            salvar_contas()
+        saldo = conta[3]
 
     elif opcao == '2':
            lista_agencias = agencias()
