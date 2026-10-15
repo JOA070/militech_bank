@@ -3,7 +3,6 @@ import json
 from datetime import date
 
 clientes = []
-
 def cadastrar_cliente(nome, cpf):
 
     cliente = {
@@ -12,19 +11,10 @@ def cadastrar_cliente(nome, cpf):
     }
 
     clientes.append(cliente)
-
-    for cliente_atual in range(len(clientes)):   # Percorre as posicoes dos clientes
-        for outro_cliente in range(cliente_atual + 1, len(clientes)):  # compara o cliente atual com os proximos clientes
-
-            if clientes[cliente_atual]["nome"] > clientes[outro_cliente]["nome"]:  # verifica se os clientes estao fora de ordem alfabetica
-
-                clientes[cliente_atual], clientes[outro_cliente] = clientes[outro_cliente], clientes[cliente_atual] # troca os clientes de posicao
-
+    clientes.sort(key=lambda cliente: cliente["nome"]) # Ordena os clientes alfabeticamente pelo nome.
     return clientes
 
-
 contas = []
-
 def criar_conta(cpf, tipo_conta, saldo_inicial, agencia):
 
     conta = {
@@ -35,96 +25,50 @@ def criar_conta(cpf, tipo_conta, saldo_inicial, agencia):
         "agencia": agencia,
         "ultima_movimentacao": date.today()
     }
-
     contas.append(conta)
-
-    # ordena igual o anterior, a mudanca é que agora sao ordenacao de contas por cpf
-    for conta_atual in range(len(contas)):
-
-        for outra_conta in range(conta_atual + 1, len(contas)):
-
-            if contas[conta_atual]["cpf"] > contas[outra_conta]["cpf"]:
-
-                contas[conta_atual], contas[outra_conta] = contas[outra_conta], contas[conta_atual]
-
+    contas.sort(key=lambda conta: conta["cpf"])  # Ordena as contas pelo CPF do titular.
     return contas
 
-
 def salvar_clientes():
-
-    with open("clientes.json", "w") as arquivo: # Salva a lista de clientes no arquivo JSON
-
+    with open("clientes.json", "w") as arquivo: # Abre o arquivo para escrita e salva os clientes em formato JSON.
         json.dump(clientes, arquivo, indent=4)
 
 
 def carregar_clientes():
 
     try:
-
-        with open("clientes.json", "r") as arquivo: # Abre o arquivo JSON para recuperar os clientes salvos
-
+        with open("clientes.json", "r") as arquivo: # Abre o arquivo para leitura e recupera os clientes salvos.
             dados = json.load(arquivo)
 
-            clientes.clear()
-
-            for cliente in dados: # Adiciona os clientes carregados na lista
-
-                clientes.append(cliente)
-
-            for i in range(len(clientes)):
-
-                for j in range(i + 1, len(clientes)):
-
-                    if clientes[i]["nome"] > clientes[j]["nome"]:
-
-                        clientes[i], clientes[j] = clientes[j], clientes[i]
+            clientes.clear()     # Remove os dados atuais antes de carregar os dados do arquivo.
+            clientes.extend(dados)    # Adiciona todos os clientes carregados à lista.
+            clientes.sort(key=lambda cliente: cliente["nome"])    # Mantém os clientes em ordem alfabética.
 
     except FileNotFoundError:
-
-        pass
+        pass    # Se o arquivo ainda não existir, não faz nada.
 
 
 def salvar_contas():
-
-    dados = []
-
-    for conta in contas: # Cria uma copia das contas para preparar os dados para o JSON
-
-        conta_salvar = conta.copy()
-
-        conta_salvar["ultima_movimentacao"] = conta_salvar["ultima_movimentacao"].isoformat() # Converte a data para texto, pois o JSON nao salva objetos date
-
-        dados.append(conta_salvar)
-
-    with open("contas.json", "w") as arquivo: # Salva as contas no arquivo JSON
-
+            # Cria uma nova lista para preparar as contas para o JSON.
+    dados = [      
+        {**conta, "ultima_movimentacao": conta["ultima_movimentacao"].isoformat()} 
+        for conta in contas
+    ]
+    with open("contas.json", "w") as arquivo: # Salva os dados preparados no arquivo JSON
         json.dump(dados, arquivo, indent=4)
-
 
 def carregar_contas():
 
-    try:
-
-        with open("contas.json", "r") as arquivo: # Abre o arquivo JSON para recuperar as contas salvas
-
+    try:   # Abre o arquivo e recupera as contas salvas.
+        with open("contas.json", "r") as arquivo: 
             dados = json.load(arquivo)
 
-            contas.clear()
+            contas.clear()    # Remove as contas atuais antes de carregar as salvas.
 
-            for conta in dados: # Converte a data salva como texto novamente para date
-
+            for conta in dados: # Converte a data de texto para um objeto date.
                 conta["ultima_movimentacao"] = date.fromisoformat(conta["ultima_movimentacao"])
-
-                contas.append(conta)
-
-            for i in range(len(contas)):
-
-                for j in range(i + 1, len(contas)):
-
-                    if contas[i]["cpf"] > contas[j]["cpf"]:
-
-                        contas[i], contas[j] = contas[j], contas[i]
+            contas.extend(dados)    # Adiciona todos os dicionários de contas à lista.
+            contas.sort(key=lambda conta: conta["cpf"])    # Ordena as contas pelo CPF do titular.
 
     except FileNotFoundError:
-
-        pass
+        pass    # Se o arquivo ainda não existir, não faz nada.
