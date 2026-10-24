@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Bancário - Cadastro de Clientes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='static/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sistema Bancário</h1>
+        <p class="subtitle">Sistema de Gerenciamento de Clientes</p>
+
+        <!-- NOVO: Seção do Dashboard / Resumo Financeiro -->
+        {% if m %}
+        <div class="card">
+            <h2>Dashboard Financeiro</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <p><strong>Total de Clientes:</strong> {{ m.total_clientes }}</p>
+                <p><strong>Saldo Total do Banco:</strong> R$ {{ "%.2f"|format(m.saldo_total) }}</p>
+                <p><strong>Saldo Médio:</strong> R$ {{ "%.2f"|format(m.saldo_medio) }}</p>
+                <p><strong>Maior Saldo:</strong> R$ {{ "%.2f"|format(m.maior_saldo) }}</p>
+                <p><strong>Menor Saldo:</strong> R$ {{ "%.2f"|format(m.menor_saldo) }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Seção: Formulário de Cadastro (Original do Professor) -->
+        <div class="card">
+            <h2>Cadastrar Novo Cliente</h2>
+            <form action="{{ url_for('cadastrar') }}" method="POST">
+                <div class="form-group">
+                    <label for="nome">Nome Completo:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite o nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cpf">CPF:</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="saldo">Saldo Inicial (R$):</label>
+                    <input type="number" id="saldo" name="saldo" step="0.01" min="0" value="0.00" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Salvar Cliente</button>
+            </form>
+        </div>
+
+        <!-- Seção: Lista de Clientes (Original do Professor) -->
+        <div class="card">
+            <h2>Clientes Cadastrados</h2>
+
+            {% if clientes %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Saldo (R$)</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                            <tr>
+                                <td>{{ cliente.nome }}</td>
+                                <td>{{ cliente.cpf }}</td>
+                                <td>R$ {{ "%.2f"|format(cliente.saldo) }}</td>
+                                <td>
+                                    <form action="{{ url_for('deletar', cpf=cliente.cpf) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn-danger" onclick="return confirm('Deseja remover este cliente?');">Excluir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-msg">Nenhum cliente cadastrado ainda.</p>
+            {% endif %}
+        </div>
+
+        <!-- NOVO: Seção de Contas com Saldo Positivo -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>Contas com Saldo Positivo</h2>
+            {% if contas_positivas %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Saldo Positivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in contas_positivas %}
+                            <tr>
+                                <td>{{ cliente.nome }}</td>
+                                <td>{{ cliente.cpf }}</td>
+                                <td style="color: green; font-weight: bold;">R$ {{ "%.2f"|format(cliente.saldo) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-msg">Nenhuma conta com saldo positivo no momento.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</body>
+</html>
