@@ -1,25 +1,14 @@
-def agencias():
-    #Lista com os dados das agencias do banco
-    lista_agencias = [
-        {
-            "numero": 1, "nome": "Militech Central",
-            },
-        {
-            "numero": 2, "nome": "Militech Corpo Plaza"
-        }
-    ]
-    return lista_agencias
+class Agencia:
+    """Representa a única agência"""
 
-def listar_agencias():
-    #Obtem a lista de agencias para exibir os dados 
-    lista_agencias = agencias()
-    print("\n--- AGÊNCIAS ---")
+    def __init__(self, numero=1, nome="Militech Central"):
+        self.numero = numero
+        self.nome = nome
+        self.contas = []
 
-    #Percorre cada agencia e exibe seus dados
-    for agencia in lista_agencias:
-        print("Número: ", agencia["numero"])
-        print("Nome: ", agencia["nome"])
-        print("-" * 20)
+    def adicionar_conta(self, conta):
+        if conta not in self.contas:
+            self.contas.append(conta)
 
-    
-'''from agencias import agencias, listar_agencias''' #importar no main
+    def __str__(self):
+        return f"Agência {self.numero} - {self.nome}"
