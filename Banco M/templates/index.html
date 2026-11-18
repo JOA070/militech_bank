@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Bancário - Cadastro de Clientes</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='static/style.css') }}">
+    <!-- CORRIGIDO: O Flask já busca direto na pasta static -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
     <div class="container">
         <h1>Sistema Bancário</h1>
-        <p class="subtitle">Sistema de Gerenciamento de Clientes</p>
+        <p class="subtitle">Sistema de Gerenciamento de Clientes (POO)</p>
 
-        <!-- NOVO: Seção do Dashboard / Resumo Financeiro -->
+        <!-- Seção do Dashboard / Resumo Financeiro -->
         {% if m %}
         <div class="card">
             <h2>Dashboard Financeiro</h2>
@@ -26,9 +27,9 @@
         </div>
         {% endif %}
 
-        <!-- Seção: Formulário de Cadastro (Original do Professor) -->
+        <!-- Seção: Formulário de Cadastro -->
         <div class="card">
-            <h2>Cadastrar Novo Cliente</h2>
+            <h2>Cadastrar Novo Cliente e Conta</h2>
             <form action="{{ url_for('cadastrar') }}" method="POST">
                 <div class="form-group">
                     <label for="nome">Nome Completo:</label>
@@ -49,58 +50,67 @@
             </form>
         </div>
 
-        <!-- Seção: Lista de Clientes (Original do Professor) -->
+        <!-- Seção: Lista de Contas Cadastradas (POO) -->
         <div class="card">
-            <h2>Clientes Cadastrados</h2>
+            <h2>Contas Cadastradas</h2>
 
-            {% if clientes %}
+            {% if contas %}
                 <table>
                     <thead>
                         <tr>
-                            <th>Nome</th>
+                            <th>Nº da Conta</th>
+                            <th>Tipo</th>
+                            <th>Titular</th>
                             <th>CPF</th>
                             <th>Saldo (R$)</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for cliente in clientes %}
+                        {% for conta in contas %}
                             <tr>
-                                <td>{{ cliente.nome }}</td>
-                                <td>{{ cliente.cpf }}</td>
-                                <td>R$ {{ "%.2f"|format(cliente.saldo) }}</td>
+                                <td>{{ conta.numero_conta }}</td>
+                                <td>{{ conta.tipo }}</td>
+                                <!-- Acessando o objeto cliente vinculado à conta -->
+                                <td>{{ conta.cliente.nome if conta.cliente else 'N/A' }}</td>
+                                <td>{{ conta.cliente.cpf if conta.cliente else 'N/A' }}</td>
+                                <td>R$ {{ "%.2f"|format(conta.saldo) }}</td>
                                 <td>
-                                    <form action="{{ url_for('deletar', cpf=cliente.cpf) }}" method="POST" style="display:inline;">
-                                        <button type="submit" class="btn-danger" onclick="return confirm('Deseja remover este cliente?');">Excluir</button>
+                                    {% if conta.cliente %}
+                                    <form action="{{ url_for('deletar', cpf=conta.cliente.cpf) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn-danger" onclick="return confirm('Deseja remover este cliente e suas contas?');">Excluir</button>
                                     </form>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% else %}
-                <p class="empty-msg">Nenhum cliente cadastrado ainda.</p>
+                <p class="empty-msg">Nenhuma conta cadastrada ainda.</p>
             {% endif %}
         </div>
 
-        <!-- NOVO: Seção de Contas com Saldo Positivo -->
+        <!-- Seção de Contas com Saldo Positivo -->
         <div class="card" style="margin-top: 20px;">
             <h2>Contas com Saldo Positivo</h2>
             {% if contas_positivas %}
                 <table>
                     <thead>
                         <tr>
-                            <th>Nome</th>
+                            <th>Nº da Conta</th>
+                            <th>Titular</th>
                             <th>CPF</th>
                             <th>Saldo Positivo</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for cliente in contas_positivas %}
+                        {% for conta in contas_positivas %}
                             <tr>
-                                <td>{{ cliente.nome }}</td>
-                                <td>{{ cliente.cpf }}</td>
-                                <td style="color: green; font-weight: bold;">R$ {{ "%.2f"|format(cliente.saldo) }}</td>
+                                <td>{{ conta.numero_conta }}</td>
+                                <td>{{ conta.cliente.nome if conta.cliente else 'N/A' }}</td>
+                                <td>{{ conta.cliente.cpf if conta.cliente else 'N/A' }}</td>
+                                <td style="color: green; font-weight: bold;">R$ {{ "%.2f"|format(conta.saldo) }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
