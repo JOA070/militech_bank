@@ -1,51 +1,51 @@
-import json
+from analise import gerar_dashboard, calcular_saldo_total, calcular_saldo_medio
 from flask import Flask, render_template, request, redirect, url_for
+from cliente import Cliente, clientes, carregar_clientes, salvar_clientes
+from conta import ContaCorrente, contas, carregar_contas, salvar_contas
+import random
 
 app = Flask(__name__)
-ARQUIVO_JSON = 'dados.json'
 
-def carregar_dados():
-    try:
-        with open(ARQUIVO_JSON, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+def carregar_dados_sistema():
+    # Carrega os clientes e contas usando os módulos POO
+    carregar_clientes()
+    carregar_contas()
 
-def salvar_dados(clientes):
-    with open(ARQUIVO_JSON, 'w', encoding='utf-8') as f:
-        json.dump(clientes, f, ensure_ascii=False, indent=4) 
 @app.route('/')       
 def index():
-    clientes = carregar_dados()
+    # Carrega os dados atualizados do sistema
+    carregar_dados_sistema()
     
-    total_clientes = len(clientes)
-    saldo_total = sum(c.get('saldo', 0) for c in clientes)
-    saldo_medio = saldo_total / total_clientes if total_clientes > 0 else 0
+    # Chama a função de relatório/dashboard que está no analise.py
+    # Passando as listas globais de clientes e contas
+    metricas_geral = gerar_dashboard(clientes, contas)
     
-    if clientes:
-        maior_saldo = max(c.get('saldo', 0) for c in clientes)
-        menor_saldo = min(c.get('saldo', 0) for c in clientes)
-    else:
-        maior_saldo = menor_saldo = 0
-
-    contas_positivas = [c for c in clientes if c.get('saldo', 0) > 0]
+    from analise import listar_contas_positivas
+    contas_positivas = listar_contas_positivas(contas)
 
     metricas = {
-        "total_clientes": total_clientes,
-        "saldo_total": saldo_total,
-        "saldo_medio": saldo_medio,
-        "maior_saldo": maior_saldo,
-        "menor_saldo": menor_saldo
+        "total_clientes": metricas_geral["total_clientes"],
+        "saldo_total": metricas_geral["saldo_total"],
+        "saldo_medio": metricas_geral["saldo_medio"],
+        "maior_saldo": metricas_geral["maior_saldo"][0].saldo if metricas_geral["maior_saldo"] else 0,
+        "menor_saldo": metricas_geral["menor_saldo"][0].saldo if metricas_geral["menor_saldo"] else 0
     }
 
     return render_template('index.html', 
                            clientes=clientes, 
+                           contas=contas,
                            m=metricas, 
                            contas_positivas=contas_positivas)
 
 @app.route('/deletar/<cpf>', methods=['POST'])
 def deletar(cpf):
+    global clientes, contas
+    #Filtra objetos cujos CPFs não coincidem
+    clientes = [c for c in clientes if c.cpf != cpf]
+    contas = [conta for conta in contas if conta.cliente and conta.cliente.cpf != cpf]
     
+    salvar_clientes()
+    salvar_contas()
     return redirect(url_for('index'))
 
 @app.route('/cadastrar', methods=['POST'])
@@ -55,36 +55,22 @@ def cadastrar():
     saldo = request.form.get('saldo')
 
     if nome and cpf and saldo:
-        clientes = carregar_dados()
-        
-        novo_cliente = {
-            "nome": nome,
-            "cpf": cpf,
-            "saldo": float(saldo)
-        }
-        
-        clientes.append(novo_cliente)
-        salvar_dados(clientes)
+        #Verifica se o cliente já existe como objeto
+        cliente = next((c for c in clientes if c.cpf == cpf), None)
+        if not cliente:
+            novo_cliente = Cliente(nome, cpf)
+            clientes.append(novo_cliente)
+            salvar_clientes()
+        else:
+            novo_cliente = cliente
 
-    return redirect(url_for('index'))
-def deletar(cpf):
-    clientes = carregar_dados()
-    clientes_atualizados = [c for c in clientes if c['cpf'] != cpf]
-    salvar_dados(clientes_atualizados)
+        #Cria uma nova conta corrente vinculada ao cliente via POO
+        num_conta = random.randint(100000, 999999)
+        nova_conta = ContaCorrente(num_conta, "corrente", float(saldo), 1, novo_cliente)
+        contas.append(nova_conta)
+        salvar_contas()
+
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
